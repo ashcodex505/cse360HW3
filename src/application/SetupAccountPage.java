@@ -46,6 +46,14 @@ public class SetupAccountPage {
 
         Button setupButton = new Button("Setup");
         
+        Button returnHome = new Button("Return Home");
+
+	    
+	    returnHome.setOnAction( a -> {
+        	new SetupLoginSelectionPage(databaseHelper).show(primaryStage);
+        });
+        
+        
         setupButton.setOnAction(a -> {
         	// Retrieve user input
             String userName = userNameField.getText();
@@ -92,7 +100,7 @@ public class SetupAccountPage {
 
         VBox layout = new VBox(10);
         layout.setStyle("-fx-padding: 20; -fx-alignment: center;");
-        layout.getChildren().addAll(userNameField, passwordField,inviteCodeField, setupButton, errorLabel);
+        layout.getChildren().addAll(userNameField, passwordField,inviteCodeField, setupButton, errorLabel, returnHome);
 
         primaryStage.setScene(new Scene(layout, 800, 400));
         primaryStage.setTitle("Account Setup");
