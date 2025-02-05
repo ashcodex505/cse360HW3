@@ -43,19 +43,33 @@ public class DatabaseHelper {
 	}
 
 	private void createTables() throws SQLException {
+	    // Create the users table
 		String userTable = "CREATE TABLE IF NOT EXISTS cse360users ("
 				+ "id INT AUTO_INCREMENT PRIMARY KEY, "
 				+ "userName VARCHAR(255) UNIQUE, "
 				+ "password VARCHAR(255), "
 				+ "role VARCHAR(20))";
 		statement.execute(userTable);
-		
-		// Create the invitation codes table
+
+	    // Create the invitation codes table
 	    String invitationCodesTable = "CREATE TABLE IF NOT EXISTS InvitationCodes ("
 	            + "code VARCHAR(10) PRIMARY KEY, "
-	            + "isUsed BOOLEAN DEFAULT FALSE)";
+	            + "isUsed BOOLEAN DEFAULT FALSE, "
+	            + "expirationTime TIMESTAMP)";              // Expiration time for invitation code
 	    statement.execute(invitationCodesTable);
+	    
+	    
+	    // Password Reset Tables
+	    String passwordReset  = " CREATE TABLE IF NOT EXISTS PasswordResetForm ("
+	    	   +  "id INT AUTO_INCREMENT PRIMARY KEY,"
+	    	   +  "userName VARCHAR(255) NOT NULL,"
+	    	   + "otp VARCHAR(10),"
+	    	   + "isProcessed BOOLEAN DEFAULT FALSE)";
+	    	statement.execute(passwordReset);
+	    
 	}
+	
+
 
 
 	// Check if the database is empty
@@ -78,6 +92,17 @@ public class DatabaseHelper {
 			pstmt.executeUpdate();
 		}
 	}
+	
+	// Updates the password from OTP
+	public void updatePassword(String userName, String newPassword) throws SQLException {
+	    String updatePass = "UPDATE cse360users SET password = ? WHERE userName = ?";
+	    try (PreparedStatement pstmt = connection.prepareStatement(updatePass)) {
+	        pstmt.setString(1, newPassword); // Set new password first
+	        pstmt.setString(2, userName);    // Set username second
+	        pstmt.executeUpdate();
+	    }
+	}
+
 
 	// Validates a user's login credentials.
 	public boolean login(User user) throws SQLException {
@@ -126,13 +151,16 @@ public class DatabaseHelper {
 	    return null; // If no user exists or an error occurs
 	}
 	
-	// Generates a new invitation code and inserts it into the database.
+	
+	// Generates a new invitation code and inserts it into the database with an expiration time.
 	public String generateInvitationCode() {
 	    String code = UUID.randomUUID().toString().substring(0, 4); // Generate a random 4-character code
-	    String query = "INSERT INTO InvitationCodes (code) VALUES (?)";
+	    String query = "INSERT INTO InvitationCodes (code, expirationTime) VALUES (?, ?)";
 
 	    try (PreparedStatement pstmt = connection.prepareStatement(query)) {
 	        pstmt.setString(1, code);
+	        // Set expiration to 5 minute from now
+	        pstmt.setTimestamp(2, new Timestamp(System.currentTimeMillis() + 5 * 60 * 1000));
 	        pstmt.executeUpdate();
 	    } catch (SQLException e) {
 	        e.printStackTrace();
@@ -140,23 +168,27 @@ public class DatabaseHelper {
 
 	    return code;
 	}
+
 	
-	// Validates an invitation code to check if it is unused.
+	// Validates an invitation code to check if it is unused and not expired.
 	public boolean validateInvitationCode(String code) {
-	    String query = "SELECT * FROM InvitationCodes WHERE code = ? AND isUsed = FALSE";
+	    String query = "SELECT * FROM InvitationCodes WHERE code = ? AND isUsed = FALSE AND expirationTime > ?";
 	    try (PreparedStatement pstmt = connection.prepareStatement(query)) {
 	        pstmt.setString(1, code);
+	        pstmt.setTimestamp(2, new Timestamp(System.currentTimeMillis())); // Current time
 	        ResultSet rs = pstmt.executeQuery();
 	        if (rs.next()) {
-	            // Mark the code as used
-	            markInvitationCodeAsUsed(code);
+	            markInvitationCodeAsUsed(code); // Mark code as used
 	            return true;
 	        }
-	    } catch (SQLException e) {
-	        e.printStackTrace();
+	     }catch (SQLException e) {
+	        System.err.println("Database error: " + e.getMessage());
+	        throw new RuntimeException("Failed to execute database operation", e);
 	    }
+
 	    return false;
 	}
+
 	
 	// Marks the invitation code as used in the database.
 	private void markInvitationCodeAsUsed(String code) {
@@ -168,7 +200,68 @@ public class DatabaseHelper {
 	        e.printStackTrace();
 	    }
 	}
+	
+	// Generates OTP for a user who requested a password reset
+	public String setOneTimePassword(String userName) throws SQLException {
+	    String otp = UUID.randomUUID().toString().substring(0, 6); // Generate a 6-character OTP
+	    String query = "UPDATE PasswordResetForm SET otp = ?, isProcessed = TRUE WHERE userName = ? AND isProcessed = FALSE";
 
+	    try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+	        pstmt.setString(1, otp);
+	        pstmt.setString(2, userName);
+	        int rowsUpdated = pstmt.executeUpdate();
+	        return (rowsUpdated > 0) ? otp : null; // Return OTP if update was successful
+	    }
+	}
+
+	
+	// Validates the one-time password (OTP) for the user.
+	public boolean validateOneTimePassword(String userName, String otp) throws SQLException {
+	    String query = "SELECT * FROM PasswordResetForm WHERE userName = ? AND otp = ? AND isProcessed = TRUE";
+	    try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+	        pstmt.setString(1, userName);
+	        pstmt.setString(2, otp);
+	        ResultSet rs = pstmt.executeQuery();
+	        if (rs.next()) {
+	        	clearOneTimePassword(userName);
+	            return true;
+	        }
+	    }catch (SQLException e) {
+	        System.err.println("Database error: " + e.getMessage());
+	        throw new RuntimeException("Failed to execute database operation", e);
+	    }
+	    return false;
+	}
+
+
+	// Clears OTP after the password is reset
+	public void clearOneTimePassword(String userName) throws SQLException {
+	    String query = "DELETE FROM PasswordResetForm WHERE userName = ?";
+	    try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+	        pstmt.setString(1, userName);
+	        pstmt.executeUpdate();
+	    }
+	}
+
+
+	
+	// Adds a password reset request to the database
+	public void addPasswordResetRequest(String userName) throws SQLException {
+	    String query = "INSERT INTO PasswordResetForm (userName) VALUES (?)";
+	    try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+	        pstmt.setString(1, userName);
+	        pstmt.executeUpdate();
+	    }
+	}
+
+	// Fetches all password reset requests for the admin dashboard
+	public ResultSet getResetRequests() throws SQLException {
+	    String query = "SELECT id, userName FROM PasswordResetForm WHERE isProcessed = FALSE";
+	    return statement.executeQuery(query);
+	}
+
+	
+	
 	// Closes the database connection and statement.
 	public void closeConnection() {
 		try{ 

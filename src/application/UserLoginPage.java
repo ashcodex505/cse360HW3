@@ -69,10 +69,38 @@ public class UserLoginPage {
                 e.printStackTrace();
             } 
         });
+        
+        // This button send a request to the admin saying that this username needs an OTP
+        Button forgotPasswordButton = new Button("Forgot Password?");
+        forgotPasswordButton.setOnAction(e -> {
+            String userName = userNameField.getText().trim();
+            if (!userName.isEmpty()) {
+                try {
+                    databaseHelper.addPasswordResetRequest(userName);
+                    System.out.print( "Your request has been sent to the admin.");
+                } catch (SQLException ex) {
+                	System.out.print("Could not process request.");
+                }
+            } else {
+               System.out.print("Please enter a username.");
+            }
+        });
+
+        // Add a button in case the user forgot their password and have to log in with OTP
+        Button OTPLogin = new Button("Login with OTP");
+        OTPLogin.setOnAction(a -> {
+        	new PasswordResetPage(databaseHelper).show(primaryStage);
+        });
+        
+	    // Navigation button to easily go around the application rather than exiting and starting the application again
+        Button returnHome = new Button("Return Home");
+	    returnHome.setOnAction( a -> {
+        	new SetupLoginSelectionPage(databaseHelper).show(primaryStage);
+        });
 
         VBox layout = new VBox(10);
         layout.setStyle("-fx-padding: 20; -fx-alignment: center;");
-        layout.getChildren().addAll(userNameField, passwordField, loginButton, errorLabel);
+        layout.getChildren().addAll(userNameField, passwordField, loginButton, errorLabel, returnHome, forgotPasswordButton, OTPLogin);
 
         primaryStage.setScene(new Scene(layout, 800, 400));
         primaryStage.setTitle("User Login");

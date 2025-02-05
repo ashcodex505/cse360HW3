@@ -33,10 +33,10 @@ public class WelcomeLoginPage {
 	    	System.out.println(role);
 	    	
 	    	if(role.equals("admin")) {
-	    		new AdminHomePage().show(primaryStage);
+	    		new AdminHomePage(databaseHelper).show(primaryStage);
 	    	}
 	    	else if(role.equals("user")) {
-	    		new UserHomePage().show(primaryStage);
+	    		new UserHomePage(databaseHelper).show(primaryStage);
 	    	}
 	    });
 	    
@@ -55,8 +55,14 @@ public class WelcomeLoginPage {
             });
             layout.getChildren().add(inviteButton);
         }
+	    
+	    // Navigation button to easily go around the application rather than exiting and starting the application again
+	    Button returnHome = new Button("Return Home");
+	    returnHome.setOnAction( a -> {
+        	new SetupLoginSelectionPage(databaseHelper).show(primaryStage);
+        });
 
-	    layout.getChildren().addAll(welcomeLabel,continueButton,quitButton);
+	    layout.getChildren().addAll(welcomeLabel,continueButton,quitButton, returnHome);
 	    Scene welcomeScene = new Scene(layout, 800, 400);
 
 	    // Set the scene to primary stage

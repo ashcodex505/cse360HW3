@@ -31,6 +31,7 @@ public class InvitationPage {
 	    
 	    // Button to generate the invitation code
 	    Button showCodeButton = new Button("Generate Invitation Code");
+	    Button returnHome = new Button("Return Home");
 	    
 	    // Label to display the generated invitation code
 	    Label inviteCodeLabel = new Label(""); ;
@@ -42,8 +43,11 @@ public class InvitationPage {
             inviteCodeLabel.setText(invitationCode);
         });
 	    
+        returnHome.setOnAction( a -> {
+        	new SetupLoginSelectionPage(databaseHelper).show(primaryStage);
+        });
 
-        layout.getChildren().addAll(userLabel, showCodeButton, inviteCodeLabel);
+        layout.getChildren().addAll(userLabel, showCodeButton, inviteCodeLabel, returnHome);
 	    Scene inviteScene = new Scene(layout, 800, 400);
 
 	    // Set the scene to primary stage
