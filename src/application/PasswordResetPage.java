@@ -44,13 +44,15 @@ public class PasswordResetPage {
             String userName = userNameField.getText();
             String otp = otpField.getText();
             String password = newPassword.getText();
+        	String passVerify = PasswordEvaluator.evaluatePassword(password);
+
             
             if (userName.isEmpty() || otp.isEmpty()) {
                 messageLabel.setText("Username and OTP cannot be empty.");
             } else {
                 try {
                 	// After the OTP is validate, the new password will be sent to the database and the OTP will deleted
-                    if (databaseHelper.validateOneTimePassword(userName, otp)) {
+                    if (databaseHelper.validateOneTimePassword(userName, otp) && passVerify.isEmpty()) {
                         databaseHelper.updatePassword(userName, password); 
 
                         showAlert("Login Successful", "You have successfully logged in with OTP.");
