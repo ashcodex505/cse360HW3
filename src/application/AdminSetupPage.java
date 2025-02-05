@@ -17,9 +17,14 @@ import databasePart1.*;
 public class AdminSetupPage {
 	
     private final DatabaseHelper databaseHelper;
+    Label passwordErrorLabel = new Label();
+    Label userNameErrorLabel = new Label();
 
     public AdminSetupPage(DatabaseHelper databaseHelper) {
         this.databaseHelper = databaseHelper;
+        userNameErrorLabel.setStyle("-fx-text-fill: red; -fx-font-size: 12px;");
+        passwordErrorLabel.setStyle("-fx-text-fill: red; -fx-font-size: 12px;");
+        
     }
 
     public void show(Stage primaryStage) {
@@ -45,9 +50,11 @@ public class AdminSetupPage {
             	// Since the two files are inside of HW1 application, we can just simply call them from their class. 
             	String userVerify = UserNameRecognizer.checkForValidUserName(userName);
             	String passVerify = PasswordEvaluator.evaluatePassword(password);
+            	userNameErrorLabel.setText(userVerify);
+        	    passwordErrorLabel.setText(passVerify);
             	if (!userVerify.isEmpty() || !passVerify.isEmpty() ) {
-            	    errorLabel.setText(userVerify);
-            	    errorLabel.setText(passVerify);
+            	    userNameField.setText("");
+            	    passwordField.setText("");
             	    return; // Stop further execution
             	}
             	
@@ -58,14 +65,14 @@ public class AdminSetupPage {
                 System.out.println("Administrator setup completed.");
                 
                 // Navigate to the Welcome Login Page
-                new WelcomeLoginPage(databaseHelper).show(primaryStage,user);
+                new UserLoginPage(databaseHelper).show(primaryStage);
             } catch (SQLException e) {
                 System.err.println("Database error: " + e.getMessage());
                 e.printStackTrace();
             }
         });
 
-        VBox layout = new VBox(10, userNameField, passwordField, setupButton);
+        VBox layout = new VBox(10, userNameField, passwordField, setupButton,userNameErrorLabel, passwordErrorLabel );
         layout.setStyle("-fx-padding: 20; -fx-alignment: center;");
 
         primaryStage.setScene(new Scene(layout, 800, 400));
