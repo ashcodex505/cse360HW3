@@ -34,7 +34,7 @@ public class DatabaseHelper {
 			connection = DriverManager.getConnection(DB_URL, USER, PASS);
 			statement = connection.createStatement(); 
 			// You can use this command to clear the database and restart from fresh.
-			statement.execute("DROP ALL OBJECTS");
+			//statement.execute("DROP ALL OBJECTS");
 
 			createTables();  // Create the necessary tables if they don't exist
 		} catch (ClassNotFoundException e) {
@@ -43,19 +43,24 @@ public class DatabaseHelper {
 	}
 
 	private void createTables() throws SQLException {
-		String userTable = "CREATE TABLE IF NOT EXISTS cse360users ("
-				+ "id INT AUTO_INCREMENT PRIMARY KEY, "
-				+ "userName VARCHAR(255) UNIQUE, "
-				+ "password VARCHAR(255), "
-				+ "role VARCHAR(20))";
-		statement.execute(userTable);
-		
-		// Create the invitation codes table
+	    // Create the users table
+	    String userTable = "CREATE TABLE IF NOT EXISTS cse360users ("
+	            + "id INT AUTO_INCREMENT PRIMARY KEY, "
+	            + "userName VARCHAR(255) UNIQUE, "
+	            + "password VARCHAR(255), "
+	            + "role VARCHAR(20), "
+	            + "oneTimePassword VARCHAR(255), "          // For one-time password
+	            + "otpExpirationTime TIMESTAMP)";           // Expiration time for OTP
+	    statement.execute(userTable);
+
+	    // Create the invitation codes table
 	    String invitationCodesTable = "CREATE TABLE IF NOT EXISTS InvitationCodes ("
 	            + "code VARCHAR(10) PRIMARY KEY, "
-	            + "isUsed BOOLEAN DEFAULT FALSE)";
+	            + "isUsed BOOLEAN DEFAULT FALSE, "
+	            + "expirationTime TIMESTAMP)";              // Expiration time for invitation code
 	    statement.execute(invitationCodesTable);
 	}
+
 
 
 	// Check if the database is empty
@@ -126,13 +131,16 @@ public class DatabaseHelper {
 	    return null; // If no user exists or an error occurs
 	}
 	
-	// Generates a new invitation code and inserts it into the database.
+	
+	// Generates a new invitation code and inserts it into the database with an expiration time.
 	public String generateInvitationCode() {
 	    String code = UUID.randomUUID().toString().substring(0, 4); // Generate a random 4-character code
-	    String query = "INSERT INTO InvitationCodes (code) VALUES (?)";
+	    String query = "INSERT INTO InvitationCodes (code, expirationTime) VALUES (?, ?)";
 
 	    try (PreparedStatement pstmt = connection.prepareStatement(query)) {
 	        pstmt.setString(1, code);
+	        // Set expiration to 5 minute from now
+	        pstmt.setTimestamp(2, new Timestamp(System.currentTimeMillis() + 5 * 60 * 1000));
 	        pstmt.executeUpdate();
 	    } catch (SQLException e) {
 	        e.printStackTrace();
@@ -140,23 +148,27 @@ public class DatabaseHelper {
 
 	    return code;
 	}
+
 	
-	// Validates an invitation code to check if it is unused.
+	// Validates an invitation code to check if it is unused and not expired.
 	public boolean validateInvitationCode(String code) {
-	    String query = "SELECT * FROM InvitationCodes WHERE code = ? AND isUsed = FALSE";
+	    String query = "SELECT * FROM InvitationCodes WHERE code = ? AND isUsed = FALSE AND expirationTime > ?";
 	    try (PreparedStatement pstmt = connection.prepareStatement(query)) {
 	        pstmt.setString(1, code);
+	        pstmt.setTimestamp(2, new Timestamp(System.currentTimeMillis())); // Current time
 	        ResultSet rs = pstmt.executeQuery();
 	        if (rs.next()) {
-	            // Mark the code as used
-	            markInvitationCodeAsUsed(code);
+	            markInvitationCodeAsUsed(code); // Mark code as used
 	            return true;
 	        }
-	    } catch (SQLException e) {
-	        e.printStackTrace();
+	     }catch (SQLException e) {
+	        System.err.println("Database error: " + e.getMessage());
+	        throw new RuntimeException("Failed to execute database operation", e);
 	    }
+
 	    return false;
 	}
+
 	
 	// Marks the invitation code as used in the database.
 	private void markInvitationCodeAsUsed(String code) {
@@ -168,7 +180,56 @@ public class DatabaseHelper {
 	        e.printStackTrace();
 	    }
 	}
+	
+	
+	public String setOneTimePassword(String userName) {
+	    String otp = UUID.randomUUID().toString().substring(0, 6); // Generate 6-character OTP
+	    String query = "UPDATE cse360users SET oneTimePassword = ?, otpExpirationTime = ? WHERE userName = ?";
 
+	    try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+	        pstmt.setString(1, otp);
+	        // Set expiration to 5 minutes from now
+	        pstmt.setTimestamp(2, new Timestamp(System.currentTimeMillis() + 5 * 60 * 1000));
+	        pstmt.setString(3, userName);
+	        pstmt.executeUpdate();
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	    }
+
+	    return otp;
+	}
+	
+	// Validates the one-time password (OTP) for the user.
+	public boolean validateOneTimePassword(String userName, String otp) {
+	    String query = "SELECT * FROM cse360users WHERE userName = ? AND oneTimePassword = ? AND otpExpirationTime > ?";
+	    try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+	        pstmt.setString(1, userName);
+	        pstmt.setString(2, otp);
+	        pstmt.setTimestamp(3, new Timestamp(System.currentTimeMillis())); // Current time
+	        ResultSet rs = pstmt.executeQuery();
+	        if (rs.next()) {
+	            clearOneTimePassword(userName); // Clear the OTP once validated
+	            return true;
+	        }
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	    }
+	    return false;
+	}
+
+	// Clears the one-time password after it has been used.
+	private void clearOneTimePassword(String userName) {
+	    String query = "UPDATE cse360users SET oneTimePassword = NULL, otpExpirationTime = NULL WHERE userName = ?";
+	    try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+	        pstmt.setString(1, userName);
+	        pstmt.executeUpdate();
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	    }
+	}
+
+	
+	
 	// Closes the database connection and statement.
 	public void closeConnection() {
 		try{ 
