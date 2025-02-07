@@ -102,6 +102,13 @@ public class DatabaseHelper {
 	        pstmt.executeUpdate();
 	    }
 	}
+	// Fetch all users except the given admin user
+	public ResultSet getUsersExcept(String adminUserName) throws SQLException {
+	    String query = "SELECT userName, role FROM cse360users WHERE userName <> ?";
+	    PreparedStatement pstmt = connection.prepareStatement(query);
+	    pstmt.setString(1, adminUserName);
+	    return pstmt.executeQuery();
+	}
 
 
 	// Validates a user's login credentials.
@@ -155,12 +162,12 @@ public class DatabaseHelper {
 	// Generates a new invitation code and inserts it into the database with an expiration time.
 	public String generateInvitationCode() {
 	    String code = UUID.randomUUID().toString().substring(0, 4); // Generate a random 4-character code
-	    String query = "INSERT INTO InvitationCodes (code, expirationTime) VALUES (?, ?)";
+	    String query = "INSERT INTO InvitationCodes (code, isUsed) VALUES (?, ?)";
 
 	    try (PreparedStatement pstmt = connection.prepareStatement(query)) {
 	        pstmt.setString(1, code);
-	        // Set expiration to 5 minute from now
-	        pstmt.setTimestamp(2, new Timestamp(System.currentTimeMillis() + 5 * 60 * 1000));
+	        // Assuming new codes are not used yet
+	        pstmt.setBoolean(2, false);
 	        pstmt.executeUpdate();
 	    } catch (SQLException e) {
 	        e.printStackTrace();
@@ -172,10 +179,10 @@ public class DatabaseHelper {
 	
 	// Validates an invitation code to check if it is unused and not expired.
 	public boolean validateInvitationCode(String code) {
-	    String query = "SELECT * FROM InvitationCodes WHERE code = ? AND isUsed = FALSE AND expirationTime > ?";
+	    String query = "SELECT * FROM InvitationCodes WHERE code = ? AND isUsed = FALSE";
 	    try (PreparedStatement pstmt = connection.prepareStatement(query)) {
 	        pstmt.setString(1, code);
-	        pstmt.setTimestamp(2, new Timestamp(System.currentTimeMillis())); // Current time
+	        //pstmt.setTimestamp(2, new Timestamp(System.currentTimeMillis())); // Current time
 	        ResultSet rs = pstmt.executeQuery();
 	        if (rs.next()) {
 	            markInvitationCodeAsUsed(code); // Mark code as used
