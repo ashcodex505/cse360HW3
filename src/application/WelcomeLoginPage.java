@@ -36,7 +36,7 @@ public class WelcomeLoginPage {
 	    		new AdminHomePage(databaseHelper, user.getUserName()).show(primaryStage);
 	    	}
 	    	else if(role.equals("user")) {
-	    		new UserHomePage(databaseHelper).show(primaryStage);
+	    		new UserHomePage(databaseHelper, user.getUserName()).show(primaryStage);
 	    	}
 	    });
 	    
