@@ -5,10 +5,8 @@ Main repo for CSE 360
 ASU ID: 1227900923
 -This is for Individual HW2
 # ScreenCast Link
-  -https://asu.zoom.us/rec/share/_NtpxIsPdIZZ648edWHgWGQ98gv8__sfFQcccTimndC6KI4MIqZj_R5-MS0dE7qv.4661luJU-GILX6aG![image](https://github.com/user-attachments/assets/65871b8b-6af3-4112-8056-1fb80f1f1478)
-  -Passcode: dzWw3eR%![image](https://github.com/user-attachments/assets/c52e2509-f78c-431b-9c98-942acb928113)
-
-
+  -https://asu.zoom.us/rec/share/_NtpxIsPdIZZ648edWHgWGQ98gv8__sfFQcccTimndC6KI4MIqZj_R5-MS0dE7qv.4661luJU-GILX6aG
+  -Passcode: dzWw3eR%
 # Setup Steps
   -So the way to setup the application is you first want to clone the github repo
   -Then open this in your Eclipse IDE and make sure you have your build paths configured and then run setupCSE360 and create an admin account 
