@@ -2,7 +2,6 @@
 
 Main repo for CSE 360
 -Ashish Kurse's Project 
-ASU ID: 1227900923
 -This is for Individual HW2
 # ScreenCast Link
   -https://asu.zoom.us/rec/share/_NtpxIsPdIZZ648edWHgWGQ98gv8__sfFQcccTimndC6KI4MIqZj_R5-MS0dE7qv.4661luJU-GILX6aG
