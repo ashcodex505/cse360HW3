@@ -20,7 +20,7 @@ public class DatabaseView {
 
             // 2. Specify the tables you want to display data from.
             //    Update these names if they differ in your database.
-            String[] tables = {"cse360users", "InvitationCodes", "PasswordResetForm"};
+            String[] tables = {"cse360users", "InvitationCodes", "PasswordResetForm", "Questions", "Answers"};
 
             // 3. Loop through each table and print out its data.
             for (String tableName : tables) {

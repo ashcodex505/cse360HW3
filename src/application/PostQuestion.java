@@ -44,7 +44,7 @@ public class PostQuestion{
         grid.add(descArea, 1, 1);
         grid.add(postButton, 1, 2);
         grid.add(cancelButton, 1, 3);
-        grid.add(feedbackLabel, 1, 3);
+        grid.add(feedbackLabel, 1, 6);
 
         // Button event handler for posting a question
         postButton.setOnAction(e -> {

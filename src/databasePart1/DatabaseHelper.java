@@ -66,7 +66,8 @@ public class DatabaseHelper {
 	    	   + "otp VARCHAR(10),"
 	    	   + "isProcessed BOOLEAN DEFAULT FALSE)";
 	    	statement.execute(passwordReset);
-	    
+//	        statement.execute("DROP TABLE IF EXISTS Answers");
+//		    statement.execute("DROP TABLE IF EXISTS Questions");
 	    	String questionsTable = "CREATE TABLE IF NOT EXISTS Questions ("
 	                + "id INT AUTO_INCREMENT PRIMARY KEY, "
 	                + "sid INT, "
