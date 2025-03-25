@@ -2,14 +2,14 @@
 
 Main repo for CSE 360
 -Ashish Kurse's Project 
--This is for Individual HW2
-# Q&A CRUD Application
+-This is for Individual HW3
 
-This repository contains a JavaFX application that implements a CRUD (Create, Read, Update, Delete) system for managing questions and answers. The application uses an H2 database with a helper class to perform all database operations.
 
 # ScreenCast Link
-  -https://asu.zoom.us/rec/share/_NtpxIsPdIZZ648edWHgWGQ98gv8__sfFQcccTimndC6KI4MIqZj_R5-MS0dE7qv.4661luJU-GILX6aG
-  -Passcode: dzWw3eR%
+  [-https://asu.zoom.us/rec/share/_NtpxIsPdIZZ648edWHgWGQ98gv8__sfFQcccTimndC6KI4MIqZj_R5-MS0dE7qv.4661luJU-GILX6aG
+  -Passcode: dzWw3eR%](https://asu.zoom.us/rec/share/GPU9GfL3S9BmuT_Jt3mQ0lFot9pH2Dm0yY5DjK4l7338ijAXORmA937iUWKVHwg9.mxTKsp_Oy_wDYGc5?startTime=1742934735000
+Passcode: #gKMQK7f)
+
 # How to open Javadoc
   - Basically clone this repo and then once you have it locally on your machine open the "docs" folder and then open the index.html in chrome and you will be able to see the Javadoc for my tests
 # List of Tests
