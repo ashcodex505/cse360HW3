@@ -29,7 +29,7 @@ This repository contains a JavaFX application that implements a CRUD (Create, Re
     Tests the full CRUD operations for questions and answers by adding, updating, and deleting a question and its associated answer.
  # Description of Tests
     Test 1 – Register and Login User:
-    This test first checks if a test user exists; if not, it registers the user using the register method from the DatabaseHelper class. Once registered, it attempts to log in using the same credentials via the login method. The test confirms success if the login returns true and prints the status to the console. The test output includes messages confirming whether the user was registered and if the login was successful, providing a clear trace of the authentication process.
+    This test first checks if a test user exists; if not, it registers the user using the register method from the DatabaseHelper class. \n Once registered, it attempts to log in using the same credentials via the login method. \n The test confirms success if the login returns true and prints the status to the console. The test output includes messages confirming whether the user was registered and if the login was successful, providing a clear trace of the authentication process.
     
     Test 2 – Check User Existence:
     This test ensures that once a new user is registered, the doesUserExist method correctly returns true. After registering a user (if needed), the method is invoked to verify the presence of the user in the database. The console output displays the registration status and confirms that the user exists. This test is critical to validate that the registration process successfully writes to the database.
