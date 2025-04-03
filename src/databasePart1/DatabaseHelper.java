@@ -75,13 +75,22 @@ public class DatabaseHelper {
 	                + "qDesc VARCHAR(1000), "
 	                + "FOREIGN KEY (sid) REFERENCES cse360users(id))";
 	        statement.execute(questionsTable);
+//	        String answersTable = "CREATE TABLE IF NOT EXISTS Answers ("
+//	                + "ansId INT AUTO_INCREMENT PRIMARY KEY, "
+//	                + "qId INT, "
+//	                + "sId INT, "
+//	                + "answerFrom VARCHAR(255), "
+//	                + "answerText VARCHAR(1000), "
+//	                + "FOREIGN KEY (qId) REFERENCES Questions(id), "
+//	                + "FOREIGN KEY (sId) REFERENCES cse360users(id))";
+//	        statement.execute(answersTable);
 	        String answersTable = "CREATE TABLE IF NOT EXISTS Answers ("
 	                + "ansId INT AUTO_INCREMENT PRIMARY KEY, "
 	                + "qId INT, "
 	                + "sId INT, "
 	                + "answerFrom VARCHAR(255), "
 	                + "answerText VARCHAR(1000), "
-	                + "FOREIGN KEY (qId) REFERENCES Questions(id), "
+	                + "FOREIGN KEY (qId) REFERENCES Questions(id) ON DELETE CASCADE, "
 	                + "FOREIGN KEY (sId) REFERENCES cse360users(id))";
 	        statement.execute(answersTable);
 	    
