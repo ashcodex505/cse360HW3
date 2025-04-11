@@ -6,8 +6,7 @@ Main repo for CSE 360
 
 
 # ScreenCast Link
-  [https://asu.zoom.us/rec/share/GPU9GfL3S9BmuT_Jt3mQ0lFot9pH2Dm0yY5DjK4l7338ijAXORmA937iUWKVHwg9.mxTKsp_Oy_wDYGc5?startTime=1742934735000
-Passcode: #gKMQK7f](https://asu.zoom.us/rec/share/DR6E9nwzaUTKE6F1d7Eo4XDpZkT0krBFVFoIU7cEugXV-Juvvd0GfnQhJM76f3x1.TOypFIaFC4uo3Vmh?startTime=1744346153000
+  https://asu.zoom.us/rec/share/DR6E9nwzaUTKE6F1d7Eo4XDpZkT0krBFVFoIU7cEugXV-Juvvd0GfnQhJM76f3x1.TOypFIaFC4uo3Vmh?startTime=1744346153000
 
 Passcode: pH7&eiE%
 
